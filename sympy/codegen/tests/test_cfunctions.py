@@ -117,6 +117,16 @@ def test_fma():
     assert expr.diff(y) - 17*42*x == 0
     assert expr.diff(z) - 101 == 0
 
+    assert fma(2, 3, 4) == 10
+    assert fma(2, 3, 4, evaluate=False) != 10
+    assert fma(pi, 2, 3) != 2*pi + 3
+
+
+def test_fma_evaluate_false():
+    from sympy import pi
+    assert fma(2, 3, 4, evaluate=False) != 10
+    assert fma(pi, 2, 3, evaluate=False) != 2*pi + 3
+
 
 def test_log10():
     x = Symbol('x')
@@ -139,6 +149,16 @@ def test_Cbrt():
     assert Cbrt(42*x).diff(x) - 42*(42*x)**(Rational(1, 3) - 1)/3 == 0
     assert Cbrt(42*x).diff(x) - Cbrt(42*x).expand(func=True).diff(x) == 0
 
+    assert Cbrt(8) == 2
+    assert Cbrt(8, evaluate=False) != 2
+    assert Cbrt(pi) != pi**Rational(1, 3)
+
+
+def test_Cbrt_evaluate_false():
+    from sympy import pi
+    assert Cbrt(8, evaluate=False) != 2
+    assert Cbrt(pi, evaluate=False) != pi**(1/3)
+
 
 def test_Sqrt():
     x = Symbol('x')
@@ -149,6 +169,17 @@ def test_Sqrt():
     # Diff
     assert Sqrt(42*x).diff(x) - 42*(42*x)**(S.Half - 1)/2 == 0
     assert Sqrt(42*x).diff(x) - Sqrt(42*x).expand(func=True).diff(x) == 0
+
+    assert Sqrt(4) == 2
+    assert Sqrt(4, evaluate=False) != 2
+    assert Sqrt(pi) != pi**S.Half
+
+
+def test_Sqrt_evaluate_false():
+    from sympy import pi
+    assert Sqrt(4, evaluate=False) != 2
+    assert Sqrt(pi, evaluate=False) != pi**(1/2)
+    assert Sqrt(-2) == Sqrt(-2)  # Ensure Sqrt(-2) does not simplify
 
 
 def test_hypot():
@@ -163,6 +194,16 @@ def test_hypot():
 
     assert hypot(17*x, 42*y).diff(x).expand(func=True) - 2*17*17*x*((17*x)**2 + (42*y)**2)**Rational(-1, 2)/2 == 0
     assert hypot(17*x, 42*y).diff(y).expand(func=True) - 2*42*42*y*((17*x)**2 + (42*y)**2)**Rational(-1, 2)/2 == 0
+
+    assert hypot(3, 4) == 5
+    assert hypot(3, 4, evaluate=False) != 5
+    assert hypot(pi, 4) != (pi**2 + 16)**S.Half
+
+
+def test_hypot_evaluate_false():
+    from sympy import pi
+    assert hypot(3, 4, evaluate=False) != 5
+    assert hypot(pi, 4, evaluate=False) != (pi**2 + 16)**(1/2)
 
 
 def test_isnan_isinf():

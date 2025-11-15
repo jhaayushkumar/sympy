@@ -6,6 +6,7 @@ The functions defined in this module allows the user to express functions such a
 as a SymPy function for symbolic manipulation.
 
 """
+from sympy.core.expr import Expr
 from sympy.core.function import ArgumentIndexError, Function
 from sympy.core.numbers import Rational
 from sympy.core.power import Pow
@@ -13,6 +14,7 @@ from sympy.core.singleton import S
 from sympy.functions.elementary.exponential import exp, log
 from sympy.functions.elementary.miscellaneous import sqrt
 from sympy.logic.boolalg import BooleanFunction, true, false
+from mpmath import mp, workprec
 
 def _expm1(x):
     return exp(x) - S.One
@@ -134,13 +136,25 @@ class log1p(Function):
 
     _eval_rewrite_as_tractable = _eval_rewrite_as_log
 
+    def _eval_expand_log(self, deep=True, **hints):
+        # Expand log1p(x) as log(x + 1)
+        return _log1p(*self.args)._eval_expand_log(deep=deep, **hints)
+
     @classmethod
     def eval(cls, arg):
         if arg.is_Rational:
+            # For very small non-zero numbers, don't simplify to avoid precision loss
+            # Let _eval_evalf handle the numerical evaluation
+            if arg != 0 and abs(arg) < 1e-10:
+                return None
             return log(arg + S.One)
         elif not arg.is_Float:  # not safe to add 1 to Float
             return log.eval(arg + S.One)
         elif arg.is_number:
+            # For very small non-zero numbers, don't simplify to avoid precision loss
+            # Let _eval_evalf handle the numerical evaluation
+            if arg != 0 and abs(arg) < 1e-10:
+                return None
             return log(Rational(arg) + S.One)
 
     def _eval_is_real(self):
@@ -159,6 +173,12 @@ class log1p(Function):
 
     def _eval_is_nonnegative(self):
         return self.args[0].is_nonnegative
+
+    def _eval_evalf(self, prec):
+        z = self.args[0]._to_mpmath(prec)
+        with workprec(prec):
+            res = mp.log1p(z)
+        return Expr._from_mpmath(res, prec)
 
 _Two = S(2)
 
@@ -325,6 +345,13 @@ class fma(Function):
     def _eval_rewrite_as_tractable(self, arg, limitvar=None, **kwargs):
         return _fma(arg)
 
+    @classmethod
+    def eval(cls, x, y, z):
+        if x.is_Atom and y.is_Atom and z.is_Atom:
+            value = _fma(x, y, z)
+            if value.is_Number:
+                return value
+
 
 _Ten = S(10)
 
@@ -431,6 +458,13 @@ class Sqrt(Function):  # 'sqrt' already defined in sympy.functions.elementary.mi
 
     _eval_rewrite_as_tractable = _eval_rewrite_as_Pow
 
+    @classmethod
+    def eval(cls, arg):
+        if arg.is_Atom and arg.is_nonnegative:
+            value = _Sqrt(arg)
+            if value.is_Number:
+                return value
+
 
 def _Cbrt(x):
     return Pow(x, Rational(1, 3))
@@ -482,6 +516,13 @@ class Cbrt(Function):  # 'cbrt' already defined in sympy.functions.elementary.mi
 
     _eval_rewrite_as_tractable = _eval_rewrite_as_Pow
 
+    @classmethod
+    def eval(cls, arg):
+        if arg.is_Atom:
+            value = _Cbrt(arg)
+            if value.is_Number:
+                return value
+
 
 def _hypot(x, y):
     return sqrt(Pow(x, 2) + Pow(y, 2))
@@ -530,6 +571,13 @@ class hypot(Function):
         return _hypot(arg)
 
     _eval_rewrite_as_tractable = _eval_rewrite_as_Pow
+
+    @classmethod
+    def eval(cls, x, y):
+        if x.is_Atom and y.is_Atom:
+            value = _hypot(x, y)
+            if value.is_Number:
+                return value
 
 
 class isnan(BooleanFunction):
