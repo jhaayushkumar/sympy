@@ -2347,8 +2347,13 @@ class PrettyPrinter(Printer):
             return prettyForm(sstr(e))
 
     def _print_FourierSeries(self, s):
-        if s.an.formula is S.Zero and s.bn.formula is S.Zero:
-            return self._print(s.a0)
+        from sympy.core.containers import Dict
+        if isinstance(s.an, Dict) and isinstance(s.bn, Dict):
+            if not s.an and not s.bn:
+                return self._print(s.a0)
+        elif hasattr(s.an, 'formula') and hasattr(s.bn, 'formula'):
+            if s.an.formula is S.Zero and s.bn.formula is S.Zero:
+                return self._print(s.a0)
         if self._use_unicode:
             dots = pretty_atom('Dots')
         else:
