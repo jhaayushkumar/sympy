@@ -619,7 +619,7 @@ class Function(Application, Expr):
         return Add(*l)
 
     def _eval_is_commutative(self):
-        return fuzzy_and(a.is_commutative for a in self.args)
+        return True
 
     def _eval_is_meromorphic(self, x, a):
         if not self.args:
@@ -902,12 +902,8 @@ class UndefinedFunction(FunctionClass):
         elif not isinstance(name, str):
             raise TypeError('expecting string or Symbol for name')
         else:
-            commutative = assumptions.get('commutative', None)
             assumptions = Symbol(name, **assumptions).assumptions0
-            if commutative is None:
-                assumptions.pop('commutative')
         __dict__ = __dict__ or {}
-        # put the `is_*` for into __dict__
         __dict__.update({'is_%s' % k: v for k, v in assumptions.items()})
         # You can add other attributes, although they do have to be hashable
         # (but seriously, if you want to add anything other than assumptions,
