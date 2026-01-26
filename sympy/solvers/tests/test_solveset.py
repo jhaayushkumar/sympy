@@ -15,6 +15,7 @@ from sympy.functions.elementary.exponential import (LambertW, exp, log)
 from sympy.functions.elementary.hyperbolic import (HyperbolicFunction,
     sinh, cosh, tanh, coth, sech, csch, asinh, acosh, atanh, acoth, asech, acsch)
 from sympy.functions.elementary.miscellaneous import sqrt, Min, Max
+from sympy.functions import floor, ceiling
 from sympy.functions.elementary.piecewise import Piecewise
 from sympy.functions.elementary.trigonometric import (
     TrigonometricFunction, acos, acot, acsc, asec, asin, atan, atan2,
@@ -1877,6 +1878,16 @@ def test_nonlinsolve_sign():
     raises(NotImplementedError, lambda: nonlinsolve([sign(x) - 1, x - y], [x, y]))
     result = nonlinsolve([sign(x) - 1], [x])
     assert isinstance(result, FiniteSet)
+
+
+def test_nonlinsolve_floor_ceiling():
+    raises(NotImplementedError, lambda: nonlinsolve([floor(x) - 5, y - x - 1], [x, y]))
+    raises(NotImplementedError, lambda: nonlinsolve([floor(x) - 5, y - 2*x], [x, y]))
+    raises(NotImplementedError, lambda: nonlinsolve([ceiling(x) - 3, y - x - 1], [x, y]))
+    result1 = nonlinsolve([floor(x) - 5], [x])
+    assert isinstance(result1, FiniteSet)
+    result2 = nonlinsolve([ceiling(x) - 3], [x])
+    assert isinstance(result2, FiniteSet)
 
 
 def test_raise_exception_nonlinsolve():
