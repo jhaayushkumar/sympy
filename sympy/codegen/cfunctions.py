@@ -13,7 +13,7 @@ from sympy.core.power import Pow
 from sympy.core.singleton import S
 from sympy.functions.elementary.exponential import exp, log
 from sympy.functions.elementary.miscellaneous import sqrt
-from sympy.logic.boolalg import BooleanFunction, true, false
+from sympy.logic.boolalg import BooleanFunction, true, false, true
 
 def _expm1(x):
     return exp(x) - S.One
