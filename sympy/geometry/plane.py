@@ -421,7 +421,7 @@ class Plane(GeometryEntity):
                 elif c is S.Reals:
                     # The linear entity lies entirely within the plane
                     return [o]
-                elif c.is_FiniteSet and len(c) == 1:
+                elif isinstance(c, FiniteSet) and len(c) == 1:
                     t_val = c.args[0]
                 else:
                     raise ValueError(
