@@ -421,9 +421,15 @@ class Plane(GeometryEntity):
                     return []
                 elif isinstance(c, FiniteSet):
                     t_val = c.args[0]
+                elif c is S.Reals:
+                    return [o]
                 else:
                     fs = next((s for s in c.args if isinstance(s, FiniteSet)), None)
-                    t_val = fs.args[0] if fs is not None else next(iter(c))
+                    if fs is not None and len(fs) == 1:
+                        t_val = fs.args[0]
+                    else:
+                        raise ValueError(
+                            'unable to determine exact intersection from %s' % c)
                 p = a.subs(t, t_val)
                 if p not in o:
                     return []
