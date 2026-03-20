@@ -415,15 +415,18 @@ class Plane(GeometryEntity):
                 a = Point3D(o.arbitrary_point(t))
                 p1, n = self.p1, Point3D(self.normal_vector)
 
-                # TODO: Replace solve with solveset, when this line is tested
                 c = solveset((a - p1).dot(n), t, S.Reals)
                 if c is S.EmptySet:
                     return []
-                elif isinstance(c, FiniteSet):
+                elif c is S.Reals:
+                    # The linear entity lies entirely within the plane
+                    return [o]
+                elif c.is_FiniteSet and len(c) == 1:
                     t_val = c.args[0]
                 else:
-                    fs = next((s for s in c.args if isinstance(s, FiniteSet)), None)
-                    t_val = fs.args[0] if fs is not None else next(iter(c))
+                    raise ValueError(
+                        'solveset returned an unexpected set %s for the '
+                        'intersection of %s with %s' % (c, o, self))
                 p = a.subs(t, t_val)
                 if p not in o:
                     return []
