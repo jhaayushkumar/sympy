@@ -17,6 +17,8 @@ from .line import (Line, Ray, Segment, Line3D, LinearEntity, LinearEntity3D,
 from .point import Point, Point3D
 from sympy.matrices import Matrix
 from sympy.polys.polytools import cancel
+from sympy.sets import FiniteSet
+from sympy.solvers.solveset import solveset
 from sympy.solvers import solve, linsolve
 from sympy.utilities.iterables import uniq, is_sequence
 from sympy.utilities.misc import filldedent, func_name, Undecidable
