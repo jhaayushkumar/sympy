@@ -181,6 +181,9 @@ def test_plane():
         Line3D(Point3D(8, 4, 0), Point3D(2, 4, 6))]
     assert pl3.intersection(Line3D(Point3D(1,2,4), Point3D(4,4,2))) == [
         Point3D(2, Rational(8, 3), Rational(10, 3))]
+    a = symbols('a')
+    assert pl10.intersection(Line3D(Point3D(0, 0, 0), Point3D(a, 0, 0))) == [
+        Point3D(0, 0, 0)]
     assert pl3.intersection(Plane(Point3D(6, 0, 0), normal_vector=(2, -5, 3))
         ) == [Line3D(Point3D(-24, -12, 0), Point3D(-25, -13, -1))]
     assert pl6.intersection(Ray3D(Point3D(2, 3, 1), Point3D(1, 3, 4))) == [
