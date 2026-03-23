@@ -415,7 +415,6 @@ class Plane(GeometryEntity):
                 a = Point3D(o.arbitrary_point(t))
                 p1, n = self.p1, Point3D(self.normal_vector)
 
-                # TODO: Ensure this solveset-based intersection logic is adequately tested
                 c = solveset((a - p1).dot(n), t, S.Reals)
                 if c is S.EmptySet:
                     return []
