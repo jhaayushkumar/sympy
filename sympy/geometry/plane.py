@@ -17,6 +17,8 @@ from .line import (Line, Ray, Segment, Line3D, LinearEntity, LinearEntity3D,
 from .point import Point, Point3D
 from sympy.matrices import Matrix
 from sympy.polys.polytools import cancel
+from sympy.sets import FiniteSet
+from sympy.solvers.solveset import solveset
 from sympy.solvers import solve, linsolve
 from sympy.utilities.iterables import uniq, is_sequence
 from sympy.utilities.misc import filldedent, func_name, Undecidable
@@ -414,19 +416,24 @@ class Plane(GeometryEntity):
                 p1, n = self.p1, Point3D(self.normal_vector)
 
                 # TODO: Replace solve with solveset, when this line is tested
-                c = solve((a - p1).dot(n), t)
-                if not c:
+                c = solveset((a - p1).dot(n), t, S.Reals)
+                if c is S.EmptySet:
                     return []
+                elif c is S.Reals:
+                    return [o]
+                elif isinstance(c, FiniteSet):
+                    t_val = c.args[0]
                 else:
-                    c = [i for i in c if i.is_real is not False]
-                    if len(c) > 1:
-                        c = [i for i in c if i.is_real]
-                    if len(c) != 1:
-                        raise Undecidable("not sure which point is real")
-                    p = a.subs(t, c[0])
-                    if p not in o:
-                        return []  # e.g. a segment might not intersect a plane
-                    return [p]
+                    fs = next((s for s in c.args if isinstance(s, FiniteSet)), None)
+                    if fs is not None:
+                        t_val = fs.args[0]
+                    else:
+                        raise Undecidable(
+                            'unable to determine exact intersection from %s' % c)
+                p = a.subs(t, t_val)
+                if p not in o:
+                    return []
+                return [p]
         if isinstance(o, Plane):
             if self.equals(o):
                 return [self]
